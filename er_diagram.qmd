@@ -32,16 +32,75 @@ erDiagram
     ORDER ||--o{ ENCOUNTER : during
 -->
 
-```{r}
-library(dm, warn.conflicts = FALSE)
-library(DiagrammeR)
 
-dm <- dm_nycflights13()
+```{r}
+library(dm)
+library(DiagrammeR)
+library(duckdb)
+library(dplyr)
+library(dbplyr)
+
+#conn <- get_ccdm_connection()
+conn <- dbConnect(duckdb("Data/CoreCDM.db"))
+
+
+mimic_tables <- dbGetQuery(conn, "SHOW ALL TABLES;") %>%
+    as_tibble()
+
+dbListTables(conn)
+
+dbSendQuery(conn, "USE mimiciv_hosp;")
+
+hosp <- dm_from_con(conn, 
+                    table_name = c(
+                        "admissions", "d_labitems",
+                        "omr",
+                        "poe", "poe_detail", 
+                        "labevents", 
+                        "microbiologyevents"
+                        ),
+                    learn_keys = FALSE
+                    ) %>% 
+    dm_add_pk(table = admissions, columns = hadm_id) %>%
+    dm_add_pk(table = d_labitems, itemid) %>%
+    dm_add_pk(table = labevents, c(labevent_id)) %>%
+    dm_add_pk(table = microbiologyevents, microevent_id) %>%
+    dm_add_pk(table = poe, c(poe_id)) %>%
+    dm_add_pk(table = poe_detail, c(poe_id, field_name)) %>%
+    
+    dm_add_fk(table = poe, hadm_id, admissions) %>%
+    dm_add_fk(table = poe_detail, poe_id, poe) %>%
+    dm_add_fk(table = labevents, hadm_id, admissions) %>%
+    dm_add_fk(table = labevents, itemid, d_labitems) %>%
+    dm_add_fk(table = microbiologyevents, hadm_id, admissions) %>%
+    dm_set_table_description(
+        "this seems backwards. \nwonder what it does with long lines." = admissions
+    )
+    
+
+
+
+dbSendQuery(conn, "USE mimiciv_icu;")
+
+icu <- dm_from_con(conn, 
+                    table_name = c("icustays"),
+                    learn_keys = FALSE
+                    )
+
+#mimic_tables
+
+
+dm_draw(hosp, 
+        view_type = "keys_only", 
+        rankdir = "RL", 
+        font_size = c(header = 18L, column = 14L, table_description = 12L)
+        )
+
 ```
 
+
 ```{r}
-dm %>%
-  dm_draw()
+dbDisconnect(conn)
 
 ```
 

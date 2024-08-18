@@ -3,9 +3,9 @@ title: "CoreCDM"
 
 ---
 
-A clinical data model designed for strategic/ad-hoc analytics, which significantly 
-decreases the need for complex queries using a large number of table joins, 
-reduce the cognitive burden for analytics developers and decrease the overall development time.
+A clinical data model designed for strategic/ad-hoc analytics, CoreCDM significantly 
+decreases the need for complex queries using a large number of table joins, which  
+reduces the cognitive burden for analytics developers and decreases the overall development time.
 
 ## Background
 
