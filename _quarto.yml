@@ -1,0 +1,23 @@
+project:
+  type: website
+
+website:
+  title: "CoreCDM"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: er_diagram.qmd
+        text: ER Diagrams
+      - href: data_dictionary.qmd
+        text: Data Dictionary
+      - about.qmd
+
+format:
+  html:
+    theme: flatly
+    css: styles.css
+    toc: true
+
+
+

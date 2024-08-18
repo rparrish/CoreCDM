@@ -1,0 +1,9 @@
+---
+title: "Original CoreCDM"
+---
+
+
+The ER diagram below is the original CoreCDM data model based on *Proprietary Model A*. 
+
+![](figs/CoreCDM_ERD_PHC.png)  
+

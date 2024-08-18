@@ -1,0 +1,47 @@
+---
+title: "Entity Relationship Diagrams"
+---
+
+This simplified ER diagram shows the high-level relationships between the primary concepts 
+in CoreCDM. In general, the Encounter table is used along with `Encounter_SID` 
+as the primary key. However, the `Person_SID` foreign key can also be used to 
+connect information across encounters if needed. 
+
+```{mermaid}
+
+erDiagram  
+    "IMAGING RESULTS" ||--o{ ENCOUNTERS : during
+    "LAB RESULTS" ||--o{ ENCOUNTERS : during
+    MEDICATIONS ||--o{ ENCOUNTERS : during
+    "MICRO RESULTS" ||--o{ ENCOUNTERS : during
+    ORDER_DETAILS ||--o{ ORDERS : "component of" 
+    ORDERS ||--o{ "LAB RESULTS" : for
+    ORDERS ||--o{ "MEDICATIONS" : for
+    ORDERS ||--o{ "MICRO RESULTS" : for
+    ORDERS ||--o{ "IMAGING RESULTS": for
+    ENCOUNTERS ||--o{ ADT_EVENTS : includes 
+    ENCOUNTERS ||--o{ CPT_CODES : includes 
+    ENCOUNTERS ||--o{ ICD10_CODES : includes 
+    ENCOUNTERS ||--o{ "MAR" : includes
+    ENCOUNTERS ||--o{ PROCEDURES : includes 
+    ENCOUNTERS ||--o{ VITAL_SIGNS : includes 
+
+```
+
+<!--
+    ORDER ||--o{ ENCOUNTER : during
+-->
+
+```{r}
+library(dm, warn.conflicts = FALSE)
+library(DiagrammeR)
+
+dm <- dm_nycflights13()
+```
+
+```{r}
+dm %>%
+  dm_draw()
+
+```
+

@@ -1,0 +1,86 @@
+---
+title: "CoreCDM"
+
+---
+
+A clinical data model designed for strategic/ad-hoc analytics, which significantly 
+decreases the need for complex queries using a large number of table joins, 
+reduce the cognitive burden for analytics developers and decrease the overall development time.
+
+## Background
+
+__Core CDM__ is designed to reduce the friction of acquiring and 
+analyzing raw data from the underlying data tables. The original version was 
+based on multiple *Proprietary Data Models* from a typical large electronic 
+health record vendor. It was also intended to leverage the strengths of 
+cloud-based data analytics platforms (separation of compute and storage). This 
+version is based on the [MIMIC-IV demonstration data](../MIMIC_IV/) with 
+DuckDB serving as the SQL database engine. 
+
+
+__Core CDM__ is patterned after other popular common data models (ie 
+[PCORnet Common Data Model](https://pcornet.org/data/) and
+[OMOP](https://www.ohdsi.org/data-standardization/the-common-data-model/)
+) that have a handful of de-normalized tables 
+that are more intuitive and require less effort to combine and prepare for analysis. 
+The underlying priority is to support analytics developers and OnLine Analytical Processing (OLAP). 
+Typical database models  such as 'star schemas' and 'snowflake schemas' are designed 
+to optimize database storage and row-based transactional processing. 
+
+* __Cloud-based analytics optimization__: 
+Cloud-based platforms have two primary cost drivers - data storage and data computation. 
+Data storage is relatively inexpensive and computation is more expensive, 
+particularly with complex queries with numerous table joins.
+ A best practice in working with cloud platforms is to 
+[denormalize complex queries or views to static tables](https://medium.com/hashmapinc/5-things-i-wish-i-knew-before-learning-snowflake-6d68ad05560b). 
+This is the opposite approach in traditional databases where data is normalized to reduce storage requirements. 
+
+__Core CDM__ addresses a few issues with the existing CDW architecture: 
+ 
+* __Different primary keys__: 
+The typical *Proprietary* main databases all use different primary keys, 
+which makes it more difficult to join *Proprietary Model A* data with *Proprietary Model B* data for example.
+ __Core CDM__ uses
+  'HADM_ID' as the primary key for nearly all tables.  
+
+* __Data delays__: 
+In many healthcare systems, *Proprietary Model A* is updated daily for the previous 24hrs, 
+and other main databases likely have a delayed refresh cadence 
+that generally requires the account coding to be complete, 
+which can be 3-7 days after discharge.  
+ __Core CDM__ in a real-world production environment is updated every morning at 7am 
+with the data from the previous 24 hours, 
+including current admissions and discharges BEFORE coding is complete. 
+This means that the same data model can be used for retrospective projects based on coding 
+as well as more timely operational projects based on note/text documentation and clinical data. 
+
+* __Non-standard naming conventions__: 
+Datamart tables in *Proprietary Model A*, *Model B*, and *Model C* 
+and other databases use different naming conventions for the same data fields and data types. 
+In addition, the column names frequently are named differently than the data types (ie. 
+columns with `_TIME` actually have dates, 
+columns with `_DATE` have datetime values, 
+foreign keys are character columns in one table and numeric in another
+etc.)  
+
+
+## Naming Conventions 
+
+
+ __Core CCDM__
+uses a controlled vocabulary where table, schema and column names are 
+formatted in **snake_case** for portability/compatibility between 
+legacy transactional databases and modern column-store database systems. In addition,  
+
+   - Primary/Foreign keys end in `ID` as BIGINTEGER. These fields are intentionally
+    formatted as **CamelCase** (e.g. `Encounter_SID`, `Person_SID`, `PersonOrder_SID`) to easily identify them and to 
+    facilitate joins to original data sources if needed.
+   - Date fields end in `_dt` in ISO format
+   - Datetime fields end in `_dttm` in ISO format
+   - Boolean fields end in `_flag` and are coded to 0/1 as INTEGER
+   - Name fields end in `_name` as VARCHAR
+   - Description fields end in `_desc` as VARCHAR
+   - Numeric fields end in `_nbr` as INTEGER
+   - Value fields end in `_value` as VARCHAR
+   
+

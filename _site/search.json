@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "er_diagram.html",
+    "href": "er_diagram.html",
+    "title": "Entity Relationship Diagrams",
+    "section": "",
+    "text": "This simplified ER diagram shows the high-level relationships between the primary concepts in CoreCDM. In general, the Encounter table is used along with Encounter_SID as the primary key. However, the Person_SID foreign key can also be used to connect information across encounters if needed.\n\n\n\n\n\nerDiagram  \n    \"IMAGING RESULTS\" ||--o{ ENCOUNTERS : during\n    \"LAB RESULTS\" ||--o{ ENCOUNTERS : during\n    MEDICATIONS ||--o{ ENCOUNTERS : during\n    \"MICRO RESULTS\" ||--o{ ENCOUNTERS : during\n    ORDER_DETAILS ||--o{ ORDERS : \"component of\" \n    ORDERS ||--o{ \"LAB RESULTS\" : for\n    ORDERS ||--o{ \"MEDICATIONS\" : for\n    ORDERS ||--o{ \"MICRO RESULTS\" : for\n    ORDERS ||--o{ \"IMAGING RESULTS\": for\n    ENCOUNTERS ||--o{ ADT_EVENTS : includes \n    ENCOUNTERS ||--o{ CPT_CODES : includes \n    ENCOUNTERS ||--o{ ICD10_CODES : includes \n    ENCOUNTERS ||--o{ \"MAR\" : includes\n    ENCOUNTERS ||--o{ PROCEDURES : includes \n    ENCOUNTERS ||--o{ VITAL_SIGNS : includes \n\n\n\n\n\n\n\n\n\nlibrary(dm, warn.conflicts = FALSE)\nlibrary(DiagrammeR)\n\ndm &lt;- dm_nycflights13()\n\n\ndm %&gt;%\n  dm_draw()"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Original CoreCDM",
+    "section": "",
+    "text": "The ER diagram below is the original CoreCDM data model based on Proprietary Model A."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CoreCDM",
+    "section": "",
+    "text": "A clinical data model designed for strategic/ad-hoc analytics, which significantly decreases the need for complex queries using a large number of table joins, reduce the cognitive burden for analytics developers and decrease the overall development time."
+  },
+  {
+    "objectID": "index.html#background",
+    "href": "index.html#background",
+    "title": "CoreCDM",
+    "section": "Background",
+    "text": "Background\nCore CDM is designed to reduce the friction of acquiring and analyzing raw data from the underlying data tables. The original version was based on multiple Proprietary Data Models from a typical large electronic health record vendor. It was also intended to leverage the strengths of cloud-based data analytics platforms (separation of compute and storage). This version is based on the MIMIC-IV demonstration data with DuckDB serving as the SQL database engine.\nCore CDM is patterned after other popular common data models (ie PCORnet Common Data Model and OMOP ) that have a handful of de-normalized tables that are more intuitive and require less effort to combine and prepare for analysis. The underlying priority is to support analytics developers and OnLine Analytical Processing (OLAP). Typical database models such as ‘star schemas’ and ‘snowflake schemas’ are designed to optimize database storage and row-based transactional processing.\n\nCloud-based analytics optimization: Cloud-based platforms have two primary cost drivers - data storage and data computation. Data storage is relatively inexpensive and computation is more expensive, particularly with complex queries with numerous table joins. A best practice in working with cloud platforms is to denormalize complex queries or views to static tables. This is the opposite approach in traditional databases where data is normalized to reduce storage requirements.\n\nCore CDM addresses a few issues with the existing CDW architecture:\n\nDifferent primary keys: The typical Proprietary main databases all use different primary keys, which makes it more difficult to join Proprietary Model A data with Proprietary Model B data for example. Core CDM uses ‘HADM_ID’ as the primary key for nearly all tables.\nData delays: In many healthcare systems, Proprietary Model A is updated daily for the previous 24hrs, and other main databases likely have a delayed refresh cadence that generally requires the account coding to be complete, which can be 3-7 days after discharge.\nCore CDM in a real-world production environment is updated every morning at 7am with the data from the previous 24 hours, including current admissions and discharges BEFORE coding is complete. This means that the same data model can be used for retrospective projects based on coding as well as more timely operational projects based on note/text documentation and clinical data.\nNon-standard naming conventions: Datamart tables in Proprietary Model A, Model B, and Model C and other databases use different naming conventions for the same data fields and data types. In addition, the column names frequently are named differently than the data types (ie. columns with _TIME actually have dates, columns with _DATE have datetime values, foreign keys are character columns in one table and numeric in another etc.)"
+  },
+  {
+    "objectID": "index.html#naming-conventions",
+    "href": "index.html#naming-conventions",
+    "title": "CoreCDM",
+    "section": "Naming Conventions",
+    "text": "Naming Conventions\nCore CCDM uses a controlled vocabulary where table, schema and column names are formatted in snake_case for portability/compatibility between legacy transactional databases and modern column-store database systems. In addition,\n\nPrimary/Foreign keys end in ID as BIGINTEGER. These fields are intentionally formatted as CamelCase (e.g. Encounter_SID, Person_SID, PersonOrder_SID) to easily identify them and to facilitate joins to original data sources if needed.\nDate fields end in _dt in ISO format\nDatetime fields end in _dttm in ISO format\nBoolean fields end in _flag and are coded to 0/1 as INTEGER\nName fields end in _name as VARCHAR\nDescription fields end in _desc as VARCHAR\nNumeric fields end in _nbr as INTEGER\nValue fields end in _value as VARCHAR"
+  }
+]

@@ -1,0 +1,4 @@
+- source: project
+  quarto-pub:
+    - id: 7e01f13d-6655-48d4-847a-02f7e4211f35
+      url: 'https://rparrish.quarto.pub/corecdm'
